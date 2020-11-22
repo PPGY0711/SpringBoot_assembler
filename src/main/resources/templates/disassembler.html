@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}" type="text/css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{css/customstyle.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{css/github.css}" type="text/css">
+    <title>计算机系统原理大程 - 反汇编器</title>
+</head>
+<body>
+<!-- Main Body -->
+<nav class="navbar navbar-default" role="navigation" style="background: #96b97d;">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="javascript:;" style="color: #FFF;font-weight: bold">MIPS汇编器大程 by 顺利毕业万岁组</a>
+        </div>
+        <div class="navbar-header" style="float: right;">
+            <a class="navbar-brand" th:href="@{assembler}" style="color: #FFF;">汇编器</a>
+            <a class="navbar-brand" th:href="@{disassembler}" style="color: #FFF;font-weight: bold">反汇编器</a>
+        </div>
+    </div>
+</nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form class="form-inline">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <input type="file" name="file" id="assembleFile" style="display: none;" accept=".txt">
+                                    <button id="openFileBtn" type="button" class="btn btn-default"><span class="glyphicon glyphicon-file"></span>打开.txt文件</button>
+                                </div>
+                                <div class="col-xs-4">
+                                    <button type="button" class="btn btn-success" id="disassembleBtn"><span class="glyphicon glyphicon-send"></span> 点击反汇编</button>
+                                </div>
+                                <div class="col-xs-4" style="float: right;">
+                                    <button type="button" class="btn btn-info" id="viewHelpBtn" data-toggle="modal" data-target="#helpModal"><span class="glyphicon glyphicon-info-sign"></span><a href="javascript:;" style="text-decoration: none;color: #FFF">查看帮助</a></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <textarea class="form-control" rows="25" id="textareaCode" name="textareaCode"></textarea>
+                    </div>
+                    <div class="panel-body">
+                        <p class="text-danger" id="tip"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form class="form-inline">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <button id="saveFileBtn" type="button" class="btn btn-default">点击复制</button>
+                                    <button id="copyFileBtn" type="button" style="display: none;" data-clipboard-action="copy" data-clipboard-target="#machineCode">点击复制</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <pre><code class="mipsasm hljs" id="textareaResult"></code></pre>
+                        <hr />
+                        <textarea id="machineCode" name="machineCode" class="form-control" rows="10" readonly="readonly" ></textarea>
+                        <div class="form-group"><p id="errorMsg" class="text-danger"></p></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div style="text-align: center;">
+                        <p>Copyright © 2020<a href="javascript:;" style="text-decoration: none">&nbsp;ZJU-计算机系统原理小组-顺利毕业万岁</a></p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">
+                            反汇编器使用指南
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="contentForm">
+                            <div class="row form-row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <p id="reason" class="text-info">
+                                            <strong>支持的机器码格式</strong><br>
+                                            1.  进制：二进制，十六进制<br>
+                                            2.  机器码反汇编结果说明：R型正常反汇编，I类型、J类型指令中的标号地址以立即数形式表示，具体数值与寻址方式有关<br>
+                                    </div>
+                                    <hr/>
+                                    <div class="form-group">
+                                        <div class="col-md-6">
+                                            <p class="text-info"><strong>示例机器码如下：</strong></p>
+                                            <p>
+                                                00004020<br>
+                                                01044820<br>
+                                                85290000<br>
+                                                11200009<br>
+                                                23bdfffe<br>
+                                                afa40002<br>
+                                                01202020<br>
+                                                2002000b<br>
+                                                0000000c<br>
+                                                8fa40002<br>
+                                                23bd0002<br>
+                                                21080001<br>
+                                                08000001<br>
+                                                01001020<br>
+                                                03e00008<br>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="text-info"><strong>反汇编结果如下：</strong></p>
+                                            <pre><code class="mipsasm">
+add $t0, $zero, $zero
+add $t1, $t0, $a0
+lh $t1, 0($t1)
+beq $t1, $zero, 9
+addi $sp, $sp, -2
+sw $a0, 2($sp)
+add $a0, $t1, $zero
+addi $v0, $zero, 11
+syscall
+lw $a0, 2($sp)
+addi $sp, $sp, 2
+addi $t0, $t0, 1
+j 2
+add $v0, $t0, $zero
+jr $ra
+                                            </code> </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">关闭
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+    </div>
+    <!-- !Main body -->
+
+    <!-- jQuery -->
+    <script th:src="@{js/jquery-3.3.1.min.js}" type="text/javascript"></script>
+    <!-- Bootstrap Core JS -->
+    <script th:src="@{js/popper.min.js}" type="text/javascript"></script>
+    <script  th:src="@{js/bootstrap.min.js}" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+    <script th:src="@{js/clipboard.min.js}" type="text/javascript"></script>
+    <!-- custom JS -->
+    <script th:src="@{js/highlight.pack.js}" type="text/javascript"></script>
+    <script th:src="@{js/disassembler.js}" type="text/javascript"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
+</body>
+</html>

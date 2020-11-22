@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{css/bootstrap.min.css}" type="text/css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{css/customstyle.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{css/github.css}" type="text/css">
+    <title>计算机系统原理大程 - 汇编器</title>
+
+</head>
+<body>
+    <!-- Main Body -->
+    <nav class="navbar navbar-default" role="navigation" style="background: #96b97d;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:;" style="color: #FFF;font-weight: bold">MIPS汇编器大程 by 顺利毕业万岁组</a>
+            </div>
+            <div class="navbar-header" style="float: right;">
+                <a class="navbar-brand" th:href="@{assembler}" style="color: #FFF;font-weight: bold">汇编器</a>
+                <a class="navbar-brand" th:href="@{disassembler}" style="color: #FFF;">反汇编器</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form class="form-inline">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <input type="file" name="file" id="assembleFile" style="display: none;" accept=".s,.txt">
+                                    <button id="openFileBtn" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-file"></span>打开.s/.txt文件
+                                    </button>
+                                </div>
+                                <div class="col-xs-4">
+                                    <button type="button" class="btn btn-success" id="assembleBtn">
+                                        <span class="glyphicon glyphicon-send"></span> 点击汇编
+                                    </button>
+                                </div>
+                                <div class="col-xs-4" style="float: right;">
+                                    <button type="button" class="btn btn-info" id="viewHelpBtn" data-toggle="modal" data-target="#helpModal"><span class="glyphicon glyphicon-info-sign"></span><a href="javascript:;" style="text-decoration: none;color: #FFF">查看帮助</a> </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-body">
+			            <textarea class="form-control" rows="15" id="textareaCode" name="textareaCode"></textarea>
+                        <hr />
+                        <pre><code id="highlightCode" class="mipsasm hljs"></code></pre>
+                    </div>
+                    <div class="panel-body">
+                        <p class="text-danger" id="tip"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <form class="form-inline">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <button id="saveFileBtn" type="button" class="btn btn-default">点击复制</button>
+                                    <button id="copyFileBtn" type="button" style="display: none;" data-clipboard-action="copy" data-clipboard-target="#machineCode">点击复制</button>
+                                </div>
+                                <input type="text" id="radix" style="display: none;">
+                                <div class="col-xs-6 text-center">
+                                    <button type="button" class="btn btn-danger" id="radixChangeBtn"><span class="glyphicon glyphicon-adjust"></span> 进制切换(2)</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="panel-body">
+                        <textarea class="form-control" rows="15" id="textareaResult" name="textareaResult" readonly="readonly"></textarea>
+                        <hr/>
+                        <textarea id="machineCode" name="machineCode" class="form-control" rows="10" readonly="readonly" ></textarea>
+                        <div><p class="text-danger" id="dTip"></p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div style="text-align: center;">
+                        <p>Copyright © 2020<a href="javascript:;" style="text-decoration: none">&nbsp;ZJU-计算机系统原理小组-顺利毕业万岁</a></p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">
+                        汇编器使用指南
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="contentForm">
+                        <div class="row form-row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <p id="reason" class="text-info">
+                                        <strong>支持的MIPS汇编语言格式规范</strong><br>
+                                        1.	语言区分大小写、所有关键字均为小写。<br>
+                                        &emsp;a)	指令关键字：<br>
+                                        &emsp;&emsp;lui, add, addi, sub, slt, slti, sltu, sltiu,<br>
+                                        &emsp;&emsp;and, andi, or, ori, xor, xori, nor, sll, sllv,<br>
+                                        &emsp;&emsp;srl, srlv, sra, srav, lw, lwx, lh, lhx, lhu,<br>
+                                        &emsp;&emsp;lhux, sw, swx, sh, shx, beq, bne, bgezal, j,<br>
+                                        &emsp;&emsp;jal, jr, jalr, mfc0, mtc0, eret, syscall, mul,<br>
+                                        &emsp;&emsp;mult, multu, div, divu, mfhi, mflo, mthi, mtlo<br>
+                                        &emsp;b)	格式指令关键字：格式说明小写，变量说明可大写或小写混用:<br>
+                                        &emsp;&emsp;equ, .origin, .data, .text, .end, .space, .zjie, .2zjie, .word<br>
+                                        &emsp;c)	寄存器名：<br>
+                                        i.	通用寄存器<br>
+                                        &emsp;$zero, $at, $v0, $v1, $a0, $a1, $a2, $a3,<br>
+                                        &emsp;$t0, $t1, $t2, $t3, $t4, $t5, $t6, $t7,<br>
+                                        &emsp;$s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7,<br>
+                                        &emsp;$t8, $t9, $k0, $k1, $gp, $sp, $fp, $ra<br>
+                                        &emsp;可用数字形式：$0~$31<br>
+                                        ii.	协处理器寄存器<br>
+                                        &emsp;STATUS、CAUSE、EPC<br>
+                                        &emsp;可用数字形式：$12~$14<br>
+                                        2.	分隔符：<br>
+                                        &emsp;a)	空格' '，制表符'\t'：用于所有符号之间的间隔，可重复使用<br>
+                                        &emsp;b)	英文逗号', '：用于操作数、变量之间的常数间隔<br>
+                                        &emsp;c)	冒号': '：程序标号的表明标识<br>
+                                        &emsp;d)	井号'#'：注释标识符（仅支持行注释）<br>
+                                        3.	每条指令占一行，结尾不加'; '<br>
+                                        4.	标号可以单独占一行，也可以与指令同一行<br>
+                                        5.	每个程序只能在同一个文件中，暂无连接<br>
+                                        6.	字符编码规范：以16位为一个zjie取代8位的byte，中英文字符均占16位，中文字符使用GB2312编码，英文字符低8位为ASCII编码，高8位为0<br>
+                                        7.  语法规范：上述指令关键字均遵循MIPS标准语法<br>
+                                    </p>
+                                    <hr/>
+                                    <div class="col-md-6">
+                                    <p class="text-info"><strong>示例代码如下：</strong></p>
+                                    <pre><code class="mispasm">
+.text
+#int disp(char* p){
+# for(int i = 0;p[i]!=0;i++)
+# dispch(p[i]);
+# return i;
+#}
+#i->$t0
+disp: add $t0,$zero,$zero # i=0
+For: add $t1,$t0,$a0 #&p[i]
+lh $t1,0($t1) #p[i]
+beq $t1,$zero,Exjt #p[i]==0?
+addi $sp,$sp,-2 #PUSH
+sw $a0,2($sp) #p
+add $a0,$t1,$zero #p[i]
+addi $v0,$zero,11 #dispchar
+syscall
+lw $a0,2($sp) #p
+addi $sp,$sp,2 #POP
+addi $t0,$t0,1 #i++
+j For
+Exjt: add $v0,$t0,$zero #return i
+jr $ra
+
+                                </code></pre>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="text-info"><strong>汇编结果如下：（十六进制）</strong></p>
+                                        <p>
+                                            [0x0    ] 00004020<br>
+                                            [0x2    ] 01044820<br>
+                                            [0x4    ] 85290000<br>
+                                            [0x6    ] 11200009<br>
+                                            [0x8    ] 23bdfffe<br>
+                                            [0xa    ] afa40002<br>
+                                            [0xc    ] 01202020<br>
+                                            [0xe    ] 2002000b<br>
+                                            [0x10   ] 0000000c<br>
+                                            [0x12   ] 8fa40002<br>
+                                            [0x14   ] 23bd0002<br>
+                                            [0x16   ] 21080001<br>
+                                            [0x18   ] 08000001<br>
+                                            [0x1a   ] 01001020<br>
+                                            [0x1c   ] 03e00008<br>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">关闭
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- !Main body -->
+
+    <!-- jQuery -->
+    <script th:src="@{js/jquery-3.3.1.min.js}" type="text/javascript"></script>
+    <!-- Bootstrap Core JS -->
+    <script th:src="@{js/popper.min.js}" type="text/javascript"></script>
+    <script  th:src="@{js/bootstrap.min.js}" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
+    <script th:src="@{js/clipboard.min.js}" type="text/javascript"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>-->
+    <!-- custom JS -->
+    <script th:src="@{js/highlight.pack.js}" type="text/javascript"></script>
+    <script th:src="@{js/assembler.js}" type="text/javascript"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
+</body>
+</html>
